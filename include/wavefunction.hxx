@@ -7,9 +7,12 @@
 
 class Wavefunction : public MatrixFunction {
 public:
-    // Constructor
-    Wavefunction(const std::vector<double>& radius, const ChannelSystem& system, const double E)
-        : MatrixFunction(radius, system.nchannels()), system_(system), E_(E) {}
+    // Constructors
+    Wavefunction(const RadialGrid& rgrid, const ChannelSystem& system, double E)
+        : MatrixFunction(rgrid, system.nchannels()), system_(system), E_(E) {}
+
+    Wavefunction(const std::vector<double>& radius, const ChannelSystem& system, double E)
+        : Wavefunction(RadialGrid(radius), system, E) {}
 
     // Accessors
     const ChannelSystem& channel_system() const { return system_; }

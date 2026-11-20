@@ -8,16 +8,28 @@
 #include "bc_matching.hxx"
 
 #include <vector>
-#include <utility>
 
 class RadialSolver {
 public:
-    RadialSolver(const ChannelSystem& system, const PotentialMatrix& potential, std::vector<double> rgrid, const BoundaryCondition bc = BoundaryCondition::Outgoing)
-        : numerov_(system, potential, std::move(rgrid)), matching_(system, bc)
-    {}
+    // Constructors
+    RadialSolver(
+        const ChannelSystem& system,
+        const PotentialMatrix& potential,
+        const RadialGrid& rgrid,
+        BoundaryCondition bc = BoundaryCondition::Outgoing
+    ) : numerov_(system, potential, rgrid), matching_(system, bc) {}
+    RadialSolver(
+        const ChannelSystem& system,
+        const PotentialMatrix& potential,
+        const std::vector<double>& radius,
+        BoundaryCondition bc = BoundaryCondition::Outgoing
+    ) : RadialSolver(system, potential, RadialGrid(radius), bc) {}
+
+    // Accessor
+    const RadialGrid& rgrid() const { return numerov_.rgrid(); }
 
     // Solve the coupled-channel Schrodinger equation and match asymptotics.
-    ScatteringResult solve(const double E) const {
+    ScatteringResult solve(double E) const {
         auto wf = numerov_.solve(E);
         return matching_.match(wf);
     }
