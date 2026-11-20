@@ -1,0 +1,8 @@
+# ============================================================
+# Local compiler and library configuration
+# Modify these paths for your system.
+# after modifying, $ cp config.mk.example config.mk
+# ============================================================
+CXX       = g++
+EIGEN_DIR = /usr/include/eigen3
+GSL_DIR   = /usr

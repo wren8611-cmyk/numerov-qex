@@ -8,20 +8,37 @@
 
 #include <Eigen/Dense>
 
+#include <iostream>
 #include <vector>
-#include <stdexcept>
 
 class PotentialMatrix {
 public:
     using Matrix = Eigen::MatrixXcd;
 
-    PotentialMatrix(const std::vector<PotentialInfo>& potentials, const ChannelSystem& system)
-        : potentials_(potentials), system_(system)
-    {
-        for (const auto& p : potentials_) {
-            system_.channel_index(p.channelid_left);
-            system_.channel_index(p.channelid_right);
+    explicit PotentialMatrix(const std::vector<PotentialInfo>& potentials, const ChannelSystem& system)
+    : system_(system) { append(potentials); }
+
+    void append(const PotentialInfo& potential) {
+        // Validate channel IDs.
+        system_.channel_index(potential.channelid_left);
+        system_.channel_index(potential.channelid_right);
+        potentials_.push_back(potential);
+    }
+    void append(const std::vector<PotentialInfo>& potentials) { for (const auto& p : potentials) append(p); }
+
+    void clear() { potentials_.clear(); }
+
+    void display_info(std::ostream& os = std::cout) const {
+        if (empty()){
+            os << "POTENTIAL MATRIX EMPTY" << "\n";
+            return;
         }
+        
+        for (const auto& p : potentials_) p.summary(os);
+    }
+
+    std::size_t size() const {
+        return potentials_.size();
     }
 
     Matrix evaluate(double r) const {
@@ -45,4 +62,9 @@ public:
 private:
     std::vector<PotentialInfo> potentials_;
     const ChannelSystem& system_;
+
+    bool empty() const {
+        return potentials_.empty();
+    }
+
 };

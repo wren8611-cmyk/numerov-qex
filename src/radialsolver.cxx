@@ -9,6 +9,7 @@
 #include "radial_solver.hxx"
 
 #include <utility>
+#include <sstream>
 
 namespace py = pybind11;
 
@@ -51,8 +52,15 @@ PYBIND11_MODULE(radialsolver, m) {
 
     py::class_<PotentialMatrix>(m, "PotentialMatrix")
         .def(py::init<const std::vector<PotentialInfo>&, const ChannelSystem&>(),
-             py::arg("potentials"), py::arg("system"),
-             py::keep_alive<1, 3>())
+             py::arg("potentials"), py::arg("system"), py::keep_alive<1, 3>())
+        .def("append", py::overload_cast<const PotentialInfo&>(&PotentialMatrix::append), py::arg("potential"))
+        .def("append", py::overload_cast<const std::vector<PotentialInfo>&>(&PotentialMatrix::append), py::arg("potentials"))
+        .def("clear", &PotentialMatrix::clear)
+        .def("size", &PotentialMatrix::size)
+        .def("display_info", [](const PotentialMatrix& self) {
+            std::ostringstream oss;
+            self.display_info(oss);
+            py::print(oss.str(), py::arg("end") = ""); })
         .def("evaluate", &PotentialMatrix::evaluate, py::arg("r"));
 
     py::class_<MatrixFunction>(m, "MatrixFunction")
