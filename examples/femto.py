@@ -1,12 +1,13 @@
-# femto.py
-
 import numpy as np
-from scipy.special import spherical_jn
 import matplotlib.pyplot as plt
 
 import configuration as conf
 import numerov_qex as nv
 
+from numerov_qex.observables import correlation_function
+
+
+# Solver
 solver = nv.NumerovSolver(
     conf.system,
     conf.potential,
@@ -17,63 +18,57 @@ solver = nv.NumerovSolver(
 
 # Parameters
 R = 1.0
-w = [1.0, 1.0]
+incoming_channel = 0
+ell = 0
+
+weights = {
+    0: 1.0,
+    1: 1.0,
+}
 
 # Gaussian source
-def source(r, R):
+def source(r):
     return np.exp(-r**2 / (4.0 * R**2)) / (4.0 * np.pi * R**2)**1.5
 
-# Observed channel 0
-mu0 = 0.5
-threshold0 = 2.0
+
+# Incoming channel information
+channel = conf.system.channel_by_id(incoming_channel)
+mu = channel.mu
+threshold = channel.threshold
 
 # Momentum grid
 qgrid = np.linspace(0.01, 3.0, 500)
 
-C = []
+# Correlation function
+q_values = []
+C_values = []
 
 for q in qgrid:
-
-    E = threshold0 + q**2 / (2.0 * mu0)
+    E = threshold + q**2 / (2.0 * mu)
 
     result = solver.solve(E)
 
-    # Normalize using incoming channel 0
-    norm = 2j * q
-
-    # Avoid r=0
-    r = solver.rgrid[1:]
-    
-    correction = np.zeros_like(r)
-    
-    for ch in range(2):
-    
-        u = np.array([
-            result.psi(i, ch, 0)
-            for i in range(1, solver.npts)
-        ])
-    
-        psi = u / (norm * r)
-    
-        correction += w[ch] * np.abs(psi)**2
-
-    # Subtract free S-wave
-    correction -= spherical_jn(0, q * r)**2
-
-    Cq = 1.0 + 4.0 * np.pi * np.trapezoid(
-        r**2 * source(r, R) * correction,
-        r
+    q_out, C = correlation_function(
+        result,
+        source=source,
+        weights=weights,
+        incoming_channel=incoming_channel,
+        ell=ell,
     )
 
-    C.append(Cq)
+    q_values.append(q_out)
+    C_values.append(C)
 
-C = np.asarray(C)
+q_values = np.asarray(q_values)
+C_values = np.asarray(C_values)
 
+# Plot
 plt.figure(figsize=(8, 5))
-plt.plot(qgrid, C, zorder=99, color="crimson")
+
+plt.plot(q_values, C_values, color="crimson", zorder=99)
 
 plt.axhline(1.0, color="black", linestyle="--")
 plt.xlabel("q")
-plt.ylabel("C(q)")
+plt.ylabel(rf"$C_{{{ell}}}(q)$")
 plt.grid()
 plt.show()
