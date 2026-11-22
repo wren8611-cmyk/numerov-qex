@@ -149,7 +149,7 @@ See [the tutorial](examples/numerov_qex_tutorial.py) for a runnable walkthrough 
 ## AI disclosure
 
 This solver was developed with the assistance of ChatGPT (GPT-6). 
-Simple tests (free, free+coulomb, wall in single- and coupled-channel) have been performed by a human.
+Simple tests (free, free+coulomb, well in single- and coupled-channel) have been performed by a human.
 
 ## Version
 
