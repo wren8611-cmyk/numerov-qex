@@ -37,7 +37,12 @@ PYBIND11_MODULE(radialsolver, m) {
         .def("nchannels", &ChannelSystem::nchannels)
         .def("channel_index", &ChannelSystem::channel_index)
         .def("channel_by_id", &ChannelSystem::channel_by_id,
-             py::return_value_policy::reference_internal);
+             py::return_value_policy::reference_internal)
+        .def("info", [](const ChannelSystem& self) {
+            std::ostringstream oss;
+            self.info(oss);
+            py::print(oss.str(), py::arg("end") = "");
+        }, "Print the channel system summary in matrix-index order.");
 
     py::class_<PotentialInfo>(m, "PotentialInfo")
         .def(py::init([](std::string name, std::vector<double> pars,
