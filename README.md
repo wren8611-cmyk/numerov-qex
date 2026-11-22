@@ -82,6 +82,8 @@ solver = nv.NumerovSolver(
 )
 
 result = solver.solve(2.7)
+
+# potential.clear() ### for resetting potential
 ```
 
 The grid includes both endpoints, from zero to `rmax`. Choose `rmax` beyond the range of the short-range potential and check convergence in `rmax` and `npts`. Use outgoing boundary conditions for the phase shift and inelasticity helpers and incoming boundary conditions for the correlation function helper.
@@ -110,12 +112,12 @@ radii = result.wavefunction.x()
 u_ch1_from_ch0 = [result.psi(i, ch1, ch0) for i in range(len(radii))]
 ```
 
-The helpers return $\delta_i=\frac{1}{2}\arg S_{ii}$ and $\eta_i=|S_{ii}|$. 
+The helpers return $\delta_i=\arg S_{ii}/2$ and $\eta_i=|S_{ii}|$. 
 Phase shifts are in radians on the principal branch $(-\pi,\pi)$. Both helpers return `nan` for a closed channel.
 
 ### Compute a femtoscopic correlation contribution
 
-Construct an incoming-boundary solver and supply a normalized radial source $S(r)$ with $4\pi\int_0^\infty r^2 S(r)\,dr=1$. The channel IDs in the weights dictionary must have the same orbital angular momentum as the incoming channel.
+Construct an incoming-boundary solver and supply a normalized radial source $S(r)$ with $4\pi\int_0^\infty r^2 S(r)dr=1$. The channel IDs in the weights dictionary must have the same orbital angular momentum as the incoming channel.
 
 ```python
 import numpy as np
@@ -146,7 +148,8 @@ See [the tutorial](examples/numerov_qex_tutorial.py) for a runnable walkthrough 
 
 ## AI disclosure
 
-OpenAI's ChatGPT was used as an assistant during development and to draft this README.
+This solver was developed with the assistance of ChatGPT (GPT-6). 
+Simple tests (free, free+coulomb, wall in single- and coupled-channel) have been performed.
 
 ## Version
 
