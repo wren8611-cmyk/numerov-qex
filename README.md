@@ -110,7 +110,7 @@ radii = result.wavefunction.x()
 u_ch1_from_ch0 = [result.psi(i, ch1, ch0) for i in range(len(radii))]
 ```
 
-The helpers return $\delta_i=\frac{1}{2}\arg (S_{\mathrm{flux}})_{ii}$ and $\eta_i=|(S_{\mathrm{flux}})_{ii}|$. 
+The helpers return $\delta_i=\frac{1}{2}\arg S_{ii}$ and $\eta_i=|S_{ii}|$. 
 Phase shifts are in radians on the principal branch $(-\pi,\pi)$. Both helpers return `nan` for a closed channel.
 
 ### Compute a femtoscopic correlation contribution
