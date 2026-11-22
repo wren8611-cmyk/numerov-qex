@@ -62,8 +62,8 @@ potential.append([
 
 | Potential | Parameters | Radial form |
 | --- | --- | --- |
-| `"gaussian"` | `[strength, range]` | $a~\exp[-(r/b)^2]$ |
-| `"well"` | `[strength, radius]` | $a$ for $r<b$, zero otherwise |
+| `"gaussian"` | `[a, b]` | $a~\exp[-(r/b)^2]$ |
+| `"well"` | `[a, b]` | $a$ for $r<b$, zero otherwise |
 
 Each term is assigned to a row and column by channel ID. For Hermitian coupling, supply both off-diagonal entries. The solver does not check Hermiticity. The solver adds diagonal Coulomb interactions automatically when the charge product is nonzero. `potential.evaluate(r)` returns the explicit matrix of user-supplied terms at radius `r`.
 
@@ -149,7 +149,7 @@ See [the tutorial](examples/numerov_qex_tutorial.py) for a runnable walkthrough 
 ## AI disclosure
 
 This solver was developed with the assistance of ChatGPT (GPT-6). 
-Simple tests (free, free+coulomb, wall in single- and coupled-channel) have been performed.
+Simple tests (free, free+coulomb, wall in single- and coupled-channel) have been performed by a human.
 
 ## Version
 
