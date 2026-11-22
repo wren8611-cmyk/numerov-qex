@@ -34,7 +34,7 @@ Use `python -m pip install .` for a regular installation. After changing the C++
 
 ## Usage
 
-Use consistent natural units with $\hbar=c=1$. Masses, center-of-mass energies, momenta, and potential strengths use the same unit. Radii and potential ranges use its inverse.
+Use consistent natural units with $\hbar=c=1$. Masses, center-of-mass energies, momenta, potential, and Radii all use common units.
 
 ### Define the channels and potential
 
@@ -45,9 +45,10 @@ import numerov_qex as nv
 from numerov_qex.observables import inelasticity, phase_shift
 
 ch0, ch1 = 10, 20
+# nv.ChannelInfo(channel_id, name_str, m1, m2, ell, z1, z2)
 system = nv.ChannelSystem([
-    nv.ChannelInfo(ch0, "channel 0", 1.0, 1.0, ell=0),
-    nv.ChannelInfo(ch1, "channel 1", 1.0, 1.5, ell=0),
+    nv.ChannelInfo(ch0, "channel 0", 1.0, 1.0, ell=0, z1=0.0, z2=0.0),
+    nv.ChannelInfo(ch1, "channel 1", 1.0, 1.5, ell=0, z1=0.0, z2=0.0),
 ])
 
 potential = nv.PotentialMatrix([], system)
@@ -61,12 +62,13 @@ potential.append([
 
 | Potential | Parameters | Radial form |
 | --- | --- | --- |
-| `"gaussian"` | `[strength, range]` | $a\exp[-(r/b)^2]$ |
+| `"gaussian"` | `[strength, range]` | $a~\exp[-(r/b)^2]$ |
 | `"well"` | `[strength, radius]` | $a$ for $r<b$, zero otherwise |
 
 Each term is assigned to a row and column by channel ID. For Hermitian coupling, supply both off-diagonal entries. The solver does not check Hermiticity. The solver adds diagonal Coulomb interactions automatically when the charge product is nonzero. `potential.evaluate(r)` returns the explicit matrix of user-supplied terms at radius `r`.
 
-`append()` accepts one term or a list of terms and adds them to the current potential. Use `clear()` to reset those terms. An existing solver sees changes to the same `PotentialMatrix` on its next call to `solve()`.
+`append()` accepts one term or a list of terms and adds them to the current potential. Use `clear()` to reset those terms. 
+An existing solver sees changes to the same `PotentialMatrix` and uses the updated potential when calling `solve()`.
 
 ### Configure the solver and solve
 
@@ -82,7 +84,7 @@ solver = nv.NumerovSolver(
 result = solver.solve(2.7)
 ```
 
-The grid includes both endpoints, from zero to `rmax`. Choose `rmax` beyond the range of the short-range potential and check convergence in `rmax` and `npts`. Use outgoing boundary conditions for the phase shift and inelasticity helpers and incoming boundary conditions for the correlation helper.
+The grid includes both endpoints, from zero to `rmax`. Choose `rmax` beyond the range of the short-range potential and check convergence in `rmax` and `npts`. Use outgoing boundary conditions for the phase shift and inelasticity helpers and incoming boundary conditions for the correlation function helper.
 
 Pass the total center-of-mass energy, including rest masses, to `solve(E)`. Both channels are open at `E=2.7`. At `E=2.2`, channel 20 is closed. The matching routine requires energies away from exact channel thresholds. Reuse the solver to scan other energies.
 
@@ -108,7 +110,8 @@ radii = result.wavefunction.x()
 u_ch1_from_ch0 = [result.psi(i, ch1, ch0) for i in range(len(radii))]
 ```
 
-The helpers return $\delta_i=\tfrac12\arg (S_{\mathrm{flux}})_{ii}$ and $\eta_i=|(S_{\mathrm{flux}})_{ii}|$. Phase shifts are in radians on the principal branch. Both helpers return `nan` for a closed channel.
+The helpers return $\delta_i=\frac{1}{2}\arg (S_{\mathrm{flux}})_{ii}$ and $\eta_i=|(S_{\mathrm{flux}})_{ii}|$. 
+Phase shifts are in radians on the principal branch $(-\pi,\pi)$. Both helpers return `nan` for a closed channel.
 
 ### Compute a femtoscopic correlation contribution
 
